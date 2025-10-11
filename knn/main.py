@@ -1,0 +1,132 @@
+# knn/main.py
+
+import os
+import numpy as np
+import matplotlib.pyplot as plt
+from .data_utils import load_cifar10, visualize_samples, CIFAR10_CLASSES
+from .knn_model import KNNImageClassifier
+
+def main():
+    """主函数，执行 K-NN 分类实验的完整流程。"""
+    
+    # --- 1. 设置路径并加载数据 ---
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    data_dir = os.path.join(current_dir, '../data/cifar-10-batches-py')
+
+    if not os.path.exists(data_dir):
+        print(f"错误: 数据目录 '{data_dir}' 不存在。")
+        print("请确保 CIFAR-10 数据集已解压至 'data/cifar-10-batches-py/'")
+        return
+
+    print("正在加载 CIFAR-10 数据集...")
+    X_train_full, y_train_full, X_test_full, y_test_full = load_cifar10(data_dir)
+    print("✓ 数据加载完成。")
+    print(f"  - 完整训练集: {X_train_full.shape[0]} 个样本")
+    print(f"  - 完整测试集: {X_test_full.shape[0]} 个样本")
+
+    # --- 2. 数据预处理与采样 ---
+    num_train_samples = 50000
+    num_test_samples = 10000
+
+    X_train = X_train_full[:num_train_samples]
+    y_train = y_train_full[:num_train_samples]
+    X_test = X_test_full[:num_test_samples]
+    y_test = y_test_full[:num_test_samples]
+
+    X_train = X_train.astype(np.float32) / 255.0
+    X_test = X_test.astype(np.float32) / 255.0
+    
+    print(f"✓ 本次实验使用训练集大小: {X_train.shape[0]}")
+    print(f"✓ 本次实验使用测试集大小: {X_test.shape[0]}")
+
+    # 可视化样本以验证数据加载
+    print("\n展示部分训练样本:")
+    visualize_samples(X_train, y_train, CIFAR10_CLASSES, 10)
+
+    # --- 3. 寻找最佳 K 值并记录结果 ---
+    k_candidates = [1, 3, 5, 8, 10, 12, 15, 20]
+
+    # 将结果保存在 knn/results/ 文件夹下
+    results_dir = os.path.join(current_dir, "results")
+    os.makedirs(results_dir, exist_ok=True) # 确保 results 文件夹存在
+    results_filename = os.path.join(results_dir, "knn_experiment_results.txt")
+    
+    print(f"\n正在通过测试不同K值寻找最优解... (结果将保存至 {results_filename})")
+    print("="*40)
+    
+    best_k = -1
+    best_accuracy = -1.0
+    
+    with open(results_filename, "w") as f:
+        f.write("K-NN 在 CIFAR-10 上的实验结果\n")
+        f.write(f"训练集大小: {num_train_samples}, 测试集大小: {num_test_samples}\n")
+        f.write("="*40 + "\n")
+        
+        for k in k_candidates:
+            knn = KNNImageClassifier(k=k)
+            knn.fit(X_train, y_train)
+            
+            print(f"正在测试 k = {k}...")
+            y_pred = knn.predict(X_test, num_loops=0)
+            
+            num_correct = np.sum(y_pred == y_test)
+            accuracy = float(num_correct) / num_test_samples
+            
+            log_message = f"当 K = {k:2d} 时, 准确率为: {accuracy:.4f}"
+            print(log_message)
+            f.write(log_message + "\n")
+            
+            if accuracy > best_accuracy:
+                best_accuracy = accuracy
+                best_k = k
+        
+        final_summary = f"\n实验完成。最佳 K 值为: {best_k}, 对应准确率为: {best_accuracy:.4f}"
+        print("="*40)
+        print(final_summary)
+        f.write("="*40 + "\n")
+        f.write(final_summary + "\n")
+    
+    print(f"✓ 所有实验结果已保存。")
+
+    # --- 4. 使用最佳模型进行最终评估与结果展示 ---
+    print(f"\n正在使用最佳 K 值 (k={best_k}) 可视化部分预测结果...")
+
+    # 使用找到的最佳 K 值，重新创建模型并进行最终预测，以用于可视化
+    best_knn = KNNImageClassifier(k=best_k)
+    best_knn.fit(X_train, y_train)
+    y_pred_final = best_knn.predict(X_test, num_loops=0)
+
+    num_display = 20
+    display_indices = np.random.choice(num_test_samples, num_display, replace=False)
+    
+    X_display = X_test[display_indices]
+    y_display_true = y_test[display_indices]
+    y_display_pred = y_pred_final[display_indices]
+
+    plt.rcParams["font.family"] = ["WenQuanYi Micro Hei"]
+    plt.rcParams["axes.unicode_minus"] = False
+    
+    plt.figure(figsize=(15, 10))
+    for i in range(num_display):
+        image_array = X_display[i].reshape(3, 32, 32).transpose(1, 2, 0)
+        
+        true_label = CIFAR10_CLASSES[y_display_true[i]]
+        pred_label = CIFAR10_CLASSES[int(y_display_pred[i])]
+        
+        plt.subplot(4, 5, i + 1)
+        plt.imshow(image_array)
+        
+        title_color = 'green' if true_label == pred_label else 'red'
+        plt.title(f"真实: {true_label}\n预测: {pred_label}", color=title_color)
+        plt.axis('off')
+        
+    plt.tight_layout(rect=[0, 0.03, 1, 0.92]) 
+    plt.suptitle("部分样本预测结果展示", fontsize=16, y=0.98) 
+    visualization_path = os.path.join(results_dir, "prediction_visualization.png")
+    # 保存图片到文件
+    visualization_path = os.path.join(results_dir, "prediction_visualization.png")
+    plt.savefig(visualization_path, bbox_inches='tight', dpi=300) 
+    plt.close()
+    print(f"✓ 预测结果可视化图片已保存至: {visualization_path}")
+if __name__ == '__main__':
+    main()
