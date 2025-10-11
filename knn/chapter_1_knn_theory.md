@@ -1,5 +1,6 @@
 ## 第一章：图像分类器 - K-近邻 (K-Nearest Neighbors, K-NN)
 
+## 第一部分：KNN理论讲解
 &emsp;&emsp;欢迎来到《用纯Python手搓经典计算机视觉算法》的第一站！在本章，我们将从一个极其生活化的思想出发，逐步揭开 K-近邻（K-NN）算法的神秘面纱。它不仅是机器学习领域最古老的算法之一，更是我们踏入图像分类世界最理想、最直观的向导。K-NN是一种“非参数”方法，这意味着它不对数据的内在分布做任何假设，这种灵活性使它成为一个绝佳的基准模型，帮助我们建立对“特征空间”中“距离”的核心直觉。
 
 ### 1.1 现实类比 - 从水果分类开始
@@ -199,3 +200,231 @@
 2. **概率视角**：如果将邻居的投票比例视为对各类别的后验概率估计，K-NN 也可以被理解为一种基于经验分布的、非常直接的概率分类器。例如，若K=5的邻居中有3个是猫，2个是狗，我们可以认为该样本是猫的概率为60%，是狗的概率为40%。这为我们提供了预测的置信度。
 
 3. **维度灾难的本质**：随着维度的增加，高维空间会变得极其稀疏，任意两点之间的距离差异会变得不明显（都很大），从而削弱了 K-NN 算法赖以生存的“邻近”概念的区分能力。应对维度灾难的常用方法包括特征选择（挑选最重要的特征）和特征提取/降回维（如使用主成分分析PCA等方法将高维数据投影到低维空间）。
+
+好的，完全没问题！我们来最后一次打磨“第二部分：代码实现详解”，确保它清晰、专业，并且完全符合你“逐段解析”的要求。
+
+这一次，我将为你生成一个可以直接复制粘贴的、最干净的最终版本。
+
+
+
+
+## 第二部分：代码实现详解
+
+&emsp;&emsp;理论是指导思想，而高质量的代码则是将思想变为现实的艺术。在本节中，我们将深入 `knn_classifier.py` 的内部，像剥洋葱一样，一层层地解析我们是如何用纯 NumPy 将 K-NN 算法的核心逻辑转化为健壮、高效的程序的。我们将重点关注几个体现了“工程智慧”的关键设计。
+
+### 2.1 `KNNClassifier` 类设计：搭建算法的骨架
+
+&emsp;&emsp;为了将算法封装成一个可复用、接口清晰的模块，我们首先设计了 `KNNClassifier` 这个类。它的核心设计遵循了“懒惰学习”的本质，将数据存储与计算预测分离。
+
+&emsp;&emsp;我们先来看一下这个类的基本框架：
+
+```python
+class KNNClassifier:
+    def __init__(self, p: float = 2.0) -> None:
+        # ... 初始化 ...
+        pass
+    
+    def fit(self, X: np.ndarray, y: np.ndarray) -> "KNNClassifier":
+        # ... 存储数据 ...
+        pass
+        
+    def predict(self, X: np.ndarray, k: int = 5, ...) -> np.ndarray:
+        # ... 进行预测 ...
+        pass
+```
+
+可以看到，整个类的结构由三个核心方法组成，每个方法职责分明：
+
+* `def __init__(self, p: float = 2.0) -> None:`
+    分类器在初始化时，只接收一个用于定义距离度量方式的参数 `p`（闵可夫斯基距离的阶数，默认为2，即欧氏距离）。此时，模型内部不包含任何数据，它只是一个定义了“如何测量距离”的空壳。
+
+* `def fit(self, X: np.ndarray, y: np.ndarray) -> "KNNClassifier":`
+    此方法完美体现了 K-NN 的“懒惰”特性。与需要耗时学习参数的复杂模型不同，这里的 `fit` 方法不进行任何计算。它的唯一职责就是接收训练数据 `X` 和训练标签 `y`，然后将它们“记住”（存为类的内部变量 `self._X` 和 `self._y`）。所有的“重活”都被推迟到了预测阶段。
+
+* `def predict(self, X: np.ndarray, k: int = 5, ... ) -> np.ndarray:`
+    这才是算法的核心计算所在。它接收新的测试数据 `X`，并要求在此时才指定邻居数量 `k`。这种设计提供了极大的灵活性，允许我们在不重新“训练”模型的情况下，轻松地用不同的 `k` 值进行多次实验，这对于超参数调优至关重要。
+
+
+### 2.2 核心亮点 1：从循环到向量化的高效距离计算
+
+&emsp;&emsp;K-NN 预测阶段最大的性能瓶颈在于计算一个测试样本与所有训练样本之间的距离。最朴素、最直观的方法，就是使用两层 for 循环，像这样：
+
+```python
+# 一种非常低效的实现方式 (两层循环)
+# (此代码为教学示例，并未包含在最终的 knn_classifier.py 中)
+num_test = X_test.shape[0]
+num_train = self.X_train.shape[0]
+dists = np.zeros((num_test, num_train))
+for i in range(num_test):
+    for j in range(num_train):
+        dists[i, j] = np.sqrt(np.sum((X_test[i] - self.X_train[j])**2))
+```
+
+&emsp;&emsp;这种方法在处理大数据时效率极低。为了解决这个问题，我们利用了 NumPy 强大的能力，将循环操作转换为了高效的矩阵运算。对于最常用的 L2 (欧氏) 距离，其距离的平方可以利用线性代数公式展开：
+
+$$
+|A-B|^2 = |A|^2 + |B|^2 - 2A \cdot B^T
+$$
+
+&emsp;&emsp;这个公式的巧妙之处在于，它将一个涉及逐元素相减的复杂运算，拆解成了三个独立的、可以被高度优化的矩阵/向量运算。我们的 `_pairwise_minkowski` 函数正是基于此原理实现：
+
+```python
+# knn/knn_classifier.py (部分代码)
+
+# ...
+if p == 2:
+    # 1. 计算 A 中每个向量的平方和 ||A||^2
+    A2 = np.sum(A * A, axis=1, keepdims=True)  # 形状: (m,1)
+
+    # 2. 计算 B 中每个向量的平方和 ||B||^2
+    B2 = np.sum(B * B, axis=1, keepdims=True).T  # 形状: (1,n)
+
+    # 3. 计算两个矩阵的点积 2A·B^T
+    G = A @ B.T  # 形状: (m,n)
+
+    # 4. 组合三部分得到距离的平方
+    sq = A2 + B2 - 2.0 * G
+
+    # 5. 最后开方得到最终的欧氏距离
+    return np.sqrt(sq, dtype=A.dtype)
+```
+
+&emsp;&emsp;在这段代码中，`np.sum` 和 `@`（矩阵乘法）都可以调用底层高度优化的线性代数库（BLAS），其计算速度远非 Python 的 for 循环所能比拟。更重要的是，这个方法避免了在内存中创建一个巨大的、形状为 `(测试样本数, 训练样本数, 特征维度)` 的中间数组，从而极大地提升了计算效率和内存使用效率。
+
+
+### 2.3 核心亮点 2：严谨的投票平局打破规则
+
+&emsp;&emsp;在多数投票环节，一个常见但容易被忽略的问题是：如果多个类别的票数完全相同怎么办？例如，当 K=4 时，可能有 2 个邻居是“猫”，2 个是“狗”。一个健壮的算法必须能够在这种情况下，给出一个确定性的、不含糊的预测结果。
+
+&emsp;&emsp;为此，我们设计了一个严谨的“三步平局打破规则”，并在 `_vote_with_tiebreak` 函数中实现。其逻辑如下：
+
+1.  **多数票优先**：首先，通过 `np.unique` 统计所有邻居的标签，找到票数最多的那个类别。如果只有一个类别票数最高，那么它就是胜者。
+
+```python
+unique_labels, counts = np.unique(labels, return_counts=True)
+max_count = np.max(counts)
+candidates = unique_labels[counts == max_count]
+if candidates.size == 1:
+return candidates[0]
+```
+
+2.  **距离和次之**：如果存在多个票数并列的候选类别，代码会进入下一步。它会遍历这些候选者，并为每一个候选者计算其对应邻居的**距离总和**。我们优先选择那个距离总和更小的类别，因为这代表它在整体上离测试点更“近”。
+
+```python
+# (在 for 循环中)
+mask = labels == lab
+s = float(np.sum(dists[mask]))
+if best_sum is None or s < best_sum:
+best_sum = s
+best_label = lab
+```
+
+3.  **标签值兜底**：在极小概率下，如果连距离总和都完全一样，代码会选择**数值上更小**的那个类别标签（例如，在“3”和“8”之间选择“3”）。这一步是最终的保障，确保无论输入如何，函数的输出总是唯一的、可复现的。
+
+```python
+# (在 for 循环的条件判断中)
+... or (s == best_sum and lab < best_label):
+best_sum = s
+best_label = lab
+```
+
+&emsp;&emsp;通过这些精心设计的细节，我们的 `KNNClassifier` 不仅是一个能工作的模型，更是一个在效率和健壮性上都经过深思熟虑的工程实现。
+
+## 第三部分：实验结果与分析
+
+&emsp;&emsp;理论和代码最终都需要通过实验来检验。在本节中，我们将展示 `KNNClassifier` 在多个标准和自定义数据集上的表现，并对实验结果进行深入的分析与讨论。
+
+### 3.1 实验总览与运行指南
+
+&emsp;&emsp;为了全面地评估我们手搓的 K-NN 算法，我们设计并运行了 5 个独立的实验。所有实验脚本都位于 `knn/experiments/` 目录下，并且可以通过命令行灵活地调用。
+
+&emsp;&emsp;在运行任何实验前，请确保您已处在项目根目录 (`cs-vision-homework/`) 下，并已激活 Python 虚拟环境 (`source venv/bin/activate`)。
+
+| 实验脚本 | 数据集 | 核心功能与产出 | 示例运行指令 |
+| :--- | :--- | :--- | :--- |
+| `toy_dataset.py` | 2D 虚拟数据 | 可视化不同 K 值下的**决策边界**，直观理解过拟合与欠拟合。 | `python3 -m knn.experiments.toy_dataset --k 1` |
+| `digits_experiment.py` | Digits (8x8) | 在低维手写数字上分类，生成**混淆矩阵**以评估模型在各类别上的表现。 | `python3 -m knn.experiments.digits_experiment --k 3` |
+| `mnist_experiment.py` | MNIST (28x28) | 在更大型的手写数字集上分类，并检验模型在更大规模数据上的性能。 | `python3 -m knn.experiments.mnist_experiment --k 3` |
+| `image_folder.py` | 自定义图片 | **通用性最强**的实验，可对任意按文件夹分类的图片进行分类，并支持自动下载。 | `python3 -m knn.experiments.image_folder --data-dir ./data/flower_photos --download-url <URL>` |
+| `cifar10_experiment.py`| CIFAR-10 | 在复杂的彩色图像数据集上进行大规模实验，寻找最优 K 值。 | `python3 -m knn.experiments.cifar10_experiment` |
+
+### 3.2 核心实验结果展示
+
+&emsp;&emsp;我们将重点展示几个最具代表性的实验结果，以揭示 K-NN 算法的特性与能力边界。
+
+#### 3.2.1 CIFAR-10 实验：寻找最优 K 值
+
+&emsp;&emsp;我们在完整的 CIFAR-10 数据集（50000 训练样本，10000 测试样本）上，使用 L2 距离测试了一系列 K 值，实验结果如下：
+
+| K 值 | 准确率 (Accuracy) |
+| :--: | :---------------: |
+|  1   |      0.3539       |
+|  3   |      **0.3561** |
+|  5   |      0.3547       |
+|  8   |      0.3525       |
+|  10  |      0.3490       |
+|  12  |      0.3508       |
+|  15  |      0.3487       |
+|  20  |      0.3374       |
+
+<p align="center"><b>图 4：CIFAR-10 实验部分预测结果 (K=3)</b></p>
+<p align="center">
+<img src="./experiments/cifar10_results/cifar10_prediction_visualization.png" alt="CIFAR-10 预测结果" width="80%">
+</p>
+
+&emsp;&emsp;从结果中可以清晰地看到，K-NN 在这个复杂的彩色图像数据集上的表现并不理想，最佳准确率仅为 **35.61%**，出现在 **K=3** 时。
+
+#### 3.2.2 Digits 与 MNIST 实验：在高对比度场景下的优异表现
+
+&emsp;&emsp;与在 CIFAR-10 上的挣扎表现不同，当面对背景干净、目标居中、类内差异小的手写数字数据集时，我们的 K-NN 分类器展现出了惊人的性能。在 Digits (8x8) 数据集上，准确率轻松达到了 **98.89%**；在更大规模的 MNIST 数据集上，准确率也高达 **96.91%**。
+
+<p align="center"><b>图 5：Digits (左) 与 MNIST (右) 数据集上的混淆矩阵</b></p>
+<div style="display: flex; justify-content: center; align-items: center; gap: 12px;">
+  <figure style="text-align: center;">
+    <img src="./experiments/digits_results/digits_confusion_matrix.png" alt="Digits 混淆矩阵" width="100%">
+    <figcaption>图 5 (a)：Digits 混淆矩阵 (K=3, 准确率 98.89%)</figcaption>
+  </figure>
+  <figure style="text-align: center;">
+    <img src="./experiments/mnist_results/mnist_confusion_matrix.png" alt="MNIST 混淆矩阵" width="100%">
+    <figcaption>图 5 (b)：MNIST 混淆矩阵 (K=3, 准确率 96.91%)</figcaption>
+  </figure>
+</div>
+
+&emsp;&emsp;两份混淆矩阵的对角线都非常“明亮”，表示绝大多数样本都被正确分类，证明了 K-NN 在处理这类结构化数据时的有效性。
+
+#### 3.2.3 Toy Dataset 实验：决策边界的可视化
+
+&emsp;&emsp;为了直观地理解 K 值对模型复杂度的影响，我们在二维虚拟数据集上绘制了决策边界。
+
+<p align="center"><b>图 6：不同 K 值下的决策边界对比</b></p>
+<div style="display: flex; justify-content: center; align-items: center; gap: 12px;">
+  <figure style="text-align: center;">
+    <img src="./experiments/toy_dataset_results/decision_boundary_k1_p2.png" alt="K=1 时的决策边界" width="100%">
+    <figcaption>图 6 (a)：K=1 时，边界复杂，出现“半岛”，有过拟合倾向。</figcaption>
+  </figure>
+  <figure style="text-align: center;">
+    <img src="./experiments/toy_dataset_results/decision_boundary_k15_p2.png" alt="K=15 时的决策边界" width="100%">
+    <figcaption>图 6 (b)：K=15 时，边界变得平滑，泛化能力更强。</figcaption>
+  </figure>
+</div>
+
+> **[提示]**：要生成 K=15 的图，你需要运行 `python3 -m knn.experiments.toy_dataset --k 15`。
+
+### 3.3 结果分析与讨论：为何性能差异如此巨大？
+
+&emsp;&emsp;实验结果提出了一个核心问题：**为什么我们手搓的 K-NN 模型，在 MNIST 和 Digits 数据集上能轻松达到 96% 以上的惊人准确率，而在更“真实”的 CIFAR-10 和 Flower Photos 数据集上却只有 30-35% 左右？**
+
+&emsp;&emsp;答案深刻地揭示了 K-NN 这类基于“像素距离”的简单模型的**核心局限性**。
+
+1.  **数据集的本质差异**
+    * **MNIST/Digits**：这些数据集的图像具有高度的结构化特征：**黑白、居中、背景干净、类内差异小**（数字“7”的写法都差不多）。在这种理想条件下，两张图片像素值的 L2 距离，可以很好地近似它们在内容上的相似度。
+    * **CIFAR-10/Flower Photos**：这是一个更接近现实世界的“野外”数据集。图片是**彩色**的（即使我们转成了灰度），物体的位置、姿态、光照、背景都千变万化，**类内差异巨大**（“狗”可以是任何品种，“玫瑰”可以有任何颜色）。在这种情况下，两张图片像素值的 L2 距离几乎完全失效。一张白狗在草地上的图片，可能在像素上离一张白猫在床上的图片更近，而不是离一张黑狗在沙滩上的图片更近。
+
+2.  **“维度灾难”的体现**
+    * CIFAR-10 的特征维度（$32 \times 32 \times 3 = 3072$）远高于 MNIST（$28 \times 28 = 784$）和 Digits（$8 \times 8 = 64$）。
+    * 正如我们在理论部分讨论的，随着维度的急剧增加，高维空间会变得异常“空旷”，所有点之间的距离都趋向于变得非常大且彼此相近。“邻居”这个概念本身变得模糊，算法的性能因此下降。
+
+**结论**
+&emsp;&emsp;这次丰富的实验有力地证明了，对于复杂的真实世界图像分类任务，直接在原始像素上应用 K-NN 算法效果有限。模型必须具备**学习“特征”**的能力——即从原始像素中提取出更高层、更抽象、对平移、旋转、光照等变化不敏感的信息——才能取得好的效果。
+
+&emsp;&emsp;这个结论，完美地引出了我们下一个小作业——**Softmax 线性分类器**，以及后续的**神经网络**和 **CNN**。它们正是为了解决“特征学习”这个问题而诞生的。
