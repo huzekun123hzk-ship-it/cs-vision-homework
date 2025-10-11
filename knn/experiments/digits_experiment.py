@@ -127,7 +127,7 @@ def main():
     rows, cols = args.grid_rows, args.grid_cols
     fig_grid, axarr = plt.subplots(rows, cols, figsize=(cols * 1.4, rows * 1.4))
     
-    # 【已修正】移除了多余的参数
+    # 移除了多余的参数
     plot_samples_grid(img_test, y_test, y_pred, rows, cols, axarr)
     
     fig_grid.suptitle("Digits 样本预测结果展示", y=0.98)
