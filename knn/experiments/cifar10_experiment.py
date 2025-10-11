@@ -10,8 +10,8 @@ import matplotlib.pyplot as plt
 # 以便能够找到位于 knn/ 目录下的模块
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-from data_utils import load_cifar10, visualize_samples, CIFAR10_CLASSES
 from knn_classifier import KNNClassifier
+from .cifar10_utils import load_cifar10, visualize_samples, CIFAR10_CLASSES
 
 def setup_matplotlib_font():
     """设置 Matplotlib 的中文字体，以正确显示图表中的中文。"""
