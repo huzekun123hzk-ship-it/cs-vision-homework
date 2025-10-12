@@ -136,8 +136,9 @@ $$
 2. **投票决策**：通过多数投票法做出预测，选择邻居集合中出现次数最多的类别作为预测结果 $\hat{y}$：
 
 $$
-\hat{y} = \underset{c}{\operatorname{argmax}} \sum_{x_i, y_i \in N_k(x_{\text{test}})} I(y_i = c)
+\hat{y} = \underset{c}{\text{argmax}} \sum_{x_i, y_i \in N_k(x_{\text{test}})} I(y_i = c)
 $$
+
 
 
 &emsp;&emsp;这个公式看起来复杂，但它的含义非常直白：“对于每一个可能的类别 `c`，我们去统计邻居集合 $N_k(x_{test})$ 中有多少样本的标签 $y_i$ 等于 `c`（$I(\cdot)$ 是指示函数，条件成立时为 1，否则为 0）。最后，我们选择那个让总和最大的类别作为最终的预测结果 $\hat{y}$。”
