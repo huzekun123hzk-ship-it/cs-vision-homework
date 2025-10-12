@@ -143,6 +143,11 @@
 
 ### 1.5 算法实现流程
 
+<p align="center"><b>K-NN 算法预测流程图</b></p>
+<p align="center">
+  <img src="./assets/knn.svg" alt="K-NN 算法预测流程图" width="100%">
+</p>
+
 &emsp;&emsp;K-NN 分类器的预测过程可以形式化地描述为以下算法。该算法的输入为一个测试样本，输出为其预测的类别标签。
 
 ---
