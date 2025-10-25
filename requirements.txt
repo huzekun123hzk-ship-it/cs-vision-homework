@@ -9,7 +9,9 @@ packaging==25.0
 pillow==11.3.0
 pyparsing==3.2.5
 python-dateutil==2.9.0.post0
-scikit-learn==1.7.2
+scikit-image==0.25.0 # <--- 用于 HOG 特征
+scikit-learn==1.7.2  # <--- 用于 K-NN 数据加载/混淆矩阵, Softmax 混淆矩阵
 scipy==1.16.2
+seaborn==0.13.2     # <--- 用于 Softmax 混淆矩阵绘图
 six==1.17.0
 threadpoolctl==3.6.0
