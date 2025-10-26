@@ -158,8 +158,8 @@ def plot_confusion_matrix(y_true, y_pred, class_names, save_path):
                 xticklabels=class_names,
                 yticklabels=class_names)
     
-    plt.ylabel('True Label (真实类别)', fontsize=13)
-    plt.xlabel('Predicted Label (预测类别)', fontsize=13)
+    plt.ylabel('True Label ', fontsize=13)
+    plt.xlabel('Predicted Label ', fontsize=13)
     plt.title('Confusion Matrix (Normalized by True Label)', fontsize=16, fontweight='bold')
     plt.xticks(rotation=45)
     plt.yticks(rotation=0)
