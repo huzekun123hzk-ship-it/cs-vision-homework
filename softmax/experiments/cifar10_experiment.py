@@ -117,7 +117,7 @@ def visualize_predictions(X_test, y_test, classifier, class_names, save_path, nu
     
     fig, axes = plt.subplots(4, 5, figsize=(15, 12))
     axes = axes.flatten()
-    
+        
     for idx, ax in enumerate(axes):
         i = indices[idx]
         img = X_test[i, :3072].reshape(32, 32, 3)
