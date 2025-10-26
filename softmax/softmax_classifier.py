@@ -66,9 +66,10 @@ class SoftmaxClassifier:
         
         # 3. 计算交叉熵损失
         correct_class_probs = probs[np.arange(N), y]
+        # 计算数据损失 (添加 1e-10 防止 log(0))
         data_loss = -np.mean(np.log(correct_class_probs + 1e-10))
         
-        # 4. 添加L2正则化（只对权重正则化，不包括偏置）
+        # 4. 添加L2正则化 (只对权重正则化，W[:-1, :]排除了最后一行偏置项)
         reg_loss = 0.5 * self.reg_strength * np.sum(self.W[:-1, :] ** 2)
         
         total_loss = data_loss + reg_loss
@@ -81,7 +82,7 @@ class SoftmaxClassifier:
         # 权重梯度
         dW = X.T.dot(dscores)
         
-        # 添加正则化梯度（只对权重，不包括偏置）
+        # 添加正则化梯度 (只对权重，W[:-1, :]排除了最后一行偏置项)
         dW[:-1, :] += self.reg_strength * self.W[:-1, :]
         
         return total_loss, dW
