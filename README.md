@@ -1,8 +1,9 @@
+
 # 《用纯Python手搓经典计算机视觉算法》开源教材项目
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-##  项目总览
+## 项目总览
 
 &emsp;&emsp;欢迎来到《用纯Python手搓经典计算机视觉算法》！这是一本开源教材项目，旨在通过纯`Python`和`NumPy`实现五个经典的计算机视觉模型，从简单到复杂递进，帮助读者深入理解算法的核心原理。
 
@@ -12,15 +13,15 @@
 
 本项目计划实现以下五个模型，难度递进：
 
-1.  **第一章：[图像分类器 - K-近邻 (K-NN)](./knn/chapter_1_knn.md)** ✅ **已完成**
-2.  **第二章：[线性分类器 - Softmax 分类器](./softmax/chapter_2_softmax.md)** ✅ **已完成**
-3.  **第三章：[两层全连接神经网络](./two_layer_network/chapter_3.md)** ✅ **已完成**
-4.  **第四章：[卷积神经网络 (CNN) - 简化版](./cnn/chapter_4_cnn.md)** ✅ **已完成**
-5.  **第五章：循环神经网络 (RNN) - 基础版** 📝 *待完成*
+1. **第一章：[图像分类器 - K-近邻 (K-NN)](./knn/chapter_1_knn.md)** 
+2. **第二章：[线性分类器 - Softmax 分类器](./softmax/chapter_2_softmax.md)** 
+3. **第三章：[两层全连接神经网络](./two_layer_network/chapter_3.md)** 
+4. **第四章：[卷积神经网络 (CNN) - 简化版](./cnn/chapter_4_cnn.md)** 
+5. **第五章：[循环神经网络 (RNN) - 基础版](./rnn/chapter_5_rnn.md)** 
 
 ---
 
-##  第一章：K-近邻 (K-NN) 分类器成果概览
+## 第一章：K-近邻 (K-NN) 分类器成果概览
 
 &emsp;&emsp;作为本书的开篇章节，我们不仅实现了 K-NN 算法，更围绕它构建了一套完整的实验和分析流程。
 
@@ -38,7 +39,7 @@
 
 ---
 
-##  第二章：Softmax 分类器成果概览
+## 第二章：Softmax 分类器成果概览
 
 &emsp;&emsp;在第二章中，我们实现了 Softmax 线性分类器，并深入探讨了特征工程的重要性。
 
@@ -56,7 +57,7 @@
 
 ---
 
-##  第三章：两层全连接神经网络成果概览
+## 第三章：两层全连接神经网络成果概览
 
 &emsp;&emsp;在第三章中，我们从线性模型迈向非线性模型，从零开始“手搓”了一个完整的两层全连接神经网络。
 
@@ -116,6 +117,34 @@ $$
 
 ---
 
+## 第五章：循环神经网络 (RNN) 成果概览
+
+&emsp;&emsp;在第五章中，我们将图像“序列化”为行序列（row-by-row），用 **Vanilla RNN** 从序列视角完成 CIFAR-10 分类实验，验证 RNN 的时间建模能力在视觉场景下的可行性与上限。
+
+* **序列化策略（Row-by-Row）**：
+  - 把每张图像视为长度为 $T=32$ 的序列；
+  - 每个时间步输入维度为 $D=32\times 3=96$；
+  - 输入张量形状：$X\in\mathbb{R}^{N\times 32\times 96}$。
+
+* **纯 NumPy 手搓实现**：
+  - 实现 `RNNClassifier`：forward（时间展开）+ BPTT 反向传播；
+  - 使用 `tanh` 激活、Xavier 风格初始化；
+  - 梯度裁剪（逐元素 clip）保证训练稳定；
+  - Mini-batch SGD 训练，包含学习率衰减与 early stopping。
+
+* **实验结果**：
+  - 在 CIFAR-10 上最终测试准确率达到 **49.30%**；
+  - 与第三章两层 FCN（49.84%）非常接近，表明“序列视角”能学到一定判别信息，但缺少 CNN 的空间归纳偏置，因此难以超过 CNN。
+
+| 实验名称 | 输入表示 | 核心功能 | 主要发现 |
+| :--- | :--- | :--- | :--- |
+| **CIFAR-10 Row-by-Row RNN** | 序列 (32×96) | 验证序列建模 | 最终测试准确率 **49.30%**，与两层 FCN（49.84%）接近，说明 RNN 可以学习部分空间相关信息，但受限于序列化方式与模型结构。 |
+| **Overfit Debug** | 小样本序列 | Sanity Check | 小数据可过拟合到接近 1 的训练准确率（如 0.99+），验证 forward/BPTT 实现大概率正确。 |
+
+> 👉 **想要看 RNN 的 BPTT 推导与完整实验代码？请阅读 [第五章的完整内容](./rnn/chapter_5_rnn.md)。**
+
+---
+
 ## 🛠️ 环境配置与运行
 
 ### 系统要求
@@ -123,80 +152,106 @@ $$
 * **Python 版本**：3.8+
 
 ### 安装与运行
-1.  **克隆仓库**
-    ```bash
-    git clone https://github.com/huzekun123hzk-ship-it/cs-vision-homework.git
-    cd cs-vision-homework
-    ```
+1. **克隆仓库**
+   ```bash
+   git clone https://github.com/huzekun123hzk-ship-it/cs-vision-homework.git
+   cd cs-vision-homework
 
-2.  **创建并激活虚拟环境**
-    ```bash
-    python3 -m venv venv
-    source venv/bin/activate
-    ```
 
-3.  **安装依赖**
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *注意：为了在 Linux 环境下正确显示图表中的中文，您可能需要安装中文字体，例如：`sudo apt-get install -y fonts-wqy-microhei`*
+2. **创建并激活虚拟环境**
 
-4.  **运行实验**
-    * 各章节的实验脚本分别位于 `knn/experiments/`、`softmax/experiments/`、`two_layer_network/experiments/` 和 `cnn/` 目录下。
-    * **示例 1：运行 K-NN Digits 实验 (K=3)**
-        ```bash
-        python3 -m knn.experiments.digits_experiment --k 3
-        ```
-    * **示例 2：运行 Softmax HOG 特征实验**
-        ```bash
-        python3 -m softmax.experiments.cifar10_experiment_hog
-        ```
-    * **示例 3：运行两层全连接网络实验**
-        ```bash
-        python3 -m two_layer_network.experiments.cifar10_experiment
-        ```
-    * **示例 4：运行简化版 CNN 训练 (CIFAR-10)**
-        ```bash
-        python -m cnn.experiment_cifar10_cnn \
-          --num-epochs 20 \
-          --batch-size 128 \
-          --learning-rate 1e-2 \
-          --update sgd_momentum
-        ```
-    * **示例 5：CNN 混淆矩阵可视化**
-        ```bash
-        python -m cnn.visualize_confusion_cnn \
-          --data-dir ./data/cifar-10-batches-py \
-          --model-path ./cnn/experiments/results/cnn_cifar10_best.npz \
-          --results-dir ./cnn/experiments/results
-        ```
-    * **示例 6：CNN 卷积核 & 特征图可视化**
-        ```bash
-        python -m cnn.visualize_features_cnn \
-          --data-dir ./data/cifar-10-batches-py \
-          --model-path ./cnn/experiments/results/cnn_cifar10_best.npz \
-          --results-dir ./cnn/experiments/results
-        ```
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate
+   ```
+
+3. **安装依赖**
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+   *注意：为了在 Linux 环境下正确显示图表中的中文，您可能需要安装中文字体，例如：`sudo apt-get install -y fonts-wqy-microhei`*
+
+4. **运行实验**
+
+   * 各章节的实验脚本分别位于 `knn/experiments/`、`softmax/experiments/`、`two_layer_network/experiments/`、`cnn/` 与 `rnn/experiments/` 目录下。
+   * **示例 1：运行 K-NN Digits 实验 (K=3)**
+
+     ```bash
+     python3 -m knn.experiments.digits_experiment --k 3
+     ```
+   * **示例 2：运行 Softmax HOG 特征实验**
+
+     ```bash
+     python3 -m softmax.experiments.cifar10_experiment_hog
+     ```
+   * **示例 3：运行两层全连接网络实验**
+
+     ```bash
+     python3 -m two_layer_network.experiments.cifar10_experiment
+     ```
+   * **示例 4：运行简化版 CNN 训练 (CIFAR-10)**
+
+     ```bash
+     python -m cnn.experiment_cifar10_cnn \
+       --num-epochs 20 \
+       --batch-size 128 \
+       --learning-rate 1e-2 \
+       --update sgd_momentum
+     ```
+   * **示例 5：CNN 混淆矩阵可视化**
+
+     ```bash
+     python -m cnn.visualize_confusion_cnn \
+       --data-dir ./data/cifar-10-batches-py \
+       --model-path ./cnn/experiments/results/cnn_cifar10_best.npz \
+       --results-dir ./cnn/experiments/results
+     ```
+   * **示例 6：CNN 卷积核 & 特征图可视化**
+
+     ```bash
+     python -m cnn.visualize_features_cnn \
+       --data-dir ./data/cifar-10-batches-py \
+       --model-path ./cnn/experiments/results/cnn_cifar10_best.npz \
+       --results-dir ./cnn/experiments/results
+     ```
+   * **示例 7：运行 RNN CIFAR-10 实验**
+
+     ```bash
+     python -m rnn.experiments.cifar10_experiment
+     ```
+   * **示例 8：RNN 小样本过拟合调试（sanity check）**
+
+     ```bash
+     python -m rnn.experiments.overfit_debug
+     ```
 
 ## 🤖 与 LLM 的协作记录
 
 &emsp;&emsp;本项目全程在 LLM 的指导下进行。我们详细记录了在**项目结构设计、代码重构、Bug修复、实验分析、特征工程探索**等关键环节与 AI 的协作过程。
 
-> 👉 **查看 K-NN 章节的 [LLM 协作日志](./llm_interactions/knn_chapter_logs.md)。**  
-> 👉 **查看 Softmax 章节的 [LLM 协作日志](./llm_interactions/softmax_chapter_logs.md)。**  
-> 👉 **查看两层网络章节的 [LLM 协作日志](./llm_interactions/two_layer_network_logs.md)。**  
-> 👉 **（如有）查看 CNN 章节的 [LLM 协作日志](./llm_interactions/cnn_chapter_logs.md)。**
+> 👉 **查看 K-NN 章节的 [LLM 协作日志](./llm_interactions/knn_chapter_logs.md)。**
 
-##  贡献指南
+> 👉 **查看 Softmax 章节的 [LLM 协作日志](./llm_interactions/softmax_chapter_logs.md)。**
+
+> 👉 **查看两层网络章节的 [LLM 协作日志](./llm_interactions/two_layer_network_logs.md)。**
+
+> 👉 **查看 CNN 章节的 [LLM 协作日志](./llm_interactions/cnn_chapter_logs.md)。**
+
+> 👉 **查看 RNN 章节的 [LLM 协作日志](./llm_interactions/rnn_chapter_logs.md)。**
+
+## 贡献指南
 
 &emsp;&emsp;我们欢迎任何形式的贡献，无论是报告问题、提交代码还是提出改进建议！请遵循标准的 Fork & Pull Request 流程。
 
-##  许可证
+## 许可证
 
 &emsp;&emsp;本项目采用 MIT 许可证。详情请查看 [LICENSE](./LICENSE) 文件。
 
-##  安全策略
+## 安全策略
 
 我们重视本项目的安全性。如果您发现了任何安全漏洞，请负责任地向我们报告。
 
 > 👉 **查看完整的 [安全策略 (SECURITY.md)](./SECURITY.md)。**
+

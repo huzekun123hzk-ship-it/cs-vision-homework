@@ -1,0 +1,6 @@
+CIFAR-10 Vanilla RNN Experiment
+============================================================
+Test Accuracy: 0.4930
+
+CONFIG:
+{'data': {'train_samples': 49000, 'val_samples': 1000, 'test_samples': 1000, 'data_dir': '../../data/cifar-10-batches-py'}, 'model': {'input_dim': 96, 'hidden_dim': 256, 'output_dim': 10, 'reg_strength': 0.0001, 'grad_clip': 5.0, 'seed': 42}, 'training': {'learning_rate': 0.002, 'num_epochs': 200, 'batch_size': 128, 'patience': 40, 'print_every': 1, 'lr_decay_step': 50, 'lr_decay_rate': 0.95, 'eval_subset': 5000}, 'visualization': {'num_pred_samples': 20}}
