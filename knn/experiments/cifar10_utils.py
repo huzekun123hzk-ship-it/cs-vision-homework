@@ -1,4 +1,4 @@
-# knn/data_utils.py
+# knn/experiments/cifar10_utils.py
 
 import os
 import pickle

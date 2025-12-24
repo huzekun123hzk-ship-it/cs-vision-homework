@@ -83,7 +83,6 @@
 
 ## 联系方式
 
-- **邮箱**：huzekun123hzk-ship-it@github.com
 - **GitHub**：[huzekun123hzk-ship-it](https://github.com/huzekun123hzk-ship-it)
 
 ---
