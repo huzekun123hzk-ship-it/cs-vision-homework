@@ -1,4 +1,3 @@
----
 # 协作日志：与 LLM 共创循环神经网络（RNN）
 
 **项目阶段**：小作业 5 - 循环神经网络 (Recurrent Neural Network, RNN)  
