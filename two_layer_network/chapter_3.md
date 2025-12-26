@@ -88,7 +88,7 @@ $$
 Z_1 = X W_1 + b_1
 $$
 
-&emsp;&emsp;其中 $X \in \mathbb{R}^{N \times D}$, $W_1 \in \mathbb{R}^{D \times H}$, $b_1 \in \mathbb{R}^H$ (通过广播机制加到 $X W_1$ 的每一行)。$Z_1$ 的形状是 $\mathbb{R}^{N \times H}$。
+&emsp;&emsp;其中 $X \in \mathbb{R}^{N \times D}$, $W_1 \in \mathbb{R}^{D \times H}$, $b_1 \in \mathbb{R}^H$ (通过广播机制加到 $X W_1$ 的每一行)。$Z_1$的形状是 $\mathbb{R}^{N \times H}$。
 
 &emsp;&emsp;然后，我们将 $Z_1$ 通过**激活函数**（见 1.4 节）得到隐藏层的**激活值**（Activation）$A_1$ (在代码中也称为 `a1`)：
 
