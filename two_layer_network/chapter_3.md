@@ -106,7 +106,7 @@ $$
 S = A_1 W_2 + b_2
 $$
 
-&emsp;&emsp;其中 $A_1 \in \mathbb{R}^{N \times H}$, $W_2 \in \mathbb{R}^{H \times K}$, $b_2 \in \mathbb{R}^K$ (广播)。 $ S $ (即 `scores`) 的形状是 $\mathbb{R}^{N \times K}$。
+&emsp;&emsp;其中 $A_1 \in \mathbb{R}^{N \times H}$, $W_2 \in \mathbb{R}^{H \times K}$, $b_2 \in \mathbb{R}^K$ (广播)。 S(即 `scores`) 的形状是 $\mathbb{R}^{N \times K}$。
 
 #### 1.3.3 输出概率分布
 
@@ -148,8 +148,8 @@ $$
 
 #### 1.4.2 其他激活函数
 
-  * **Sigmoid**：$\sigma(z) = \frac{1}{1 + e^{-z}}$，输出范围在 $(0, 1)$，常用于二分类问题的输出层，但在隐藏层中容易导致梯度消失。
-  * **Tanh**：$\tanh(z) = \frac{e^z - e^{-z}}{e^z + e^{-z}}$，输出范围在 $(-1, 1)$，是 sigmoid 的缩放和平移版本，在隐藏层中比 sigmoid 更常用。
+  * **Sigmoid**： $\sigma(z) = \frac{1}{1 + e^{-z}}$ ，输出范围在 $(0, 1)$，常用于二分类问题的输出层，但在隐藏层中容易导致梯度消失。
+  * **Tanh**： $\tanh(z) = \frac{e^z - e^{-z}}{e^z + e^{-z}}$ ，输出范围在 $(-1, 1)$，是 sigmoid 的缩放和平移版本，在隐藏层中比 sigmoid 更常用。
 
 <p align="center"><b>图 4：常用激活函数对比</b></p>
 <p align="center">
