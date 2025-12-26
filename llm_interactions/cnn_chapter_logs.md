@@ -1,6 +1,4 @@
 
----
-
 # 协作日志：与 LLM 共创卷积神经网络（CNN）
 
 **项目阶段**：小作业 4 - 卷积神经网络 (Convolutional Neural Network, CNN)  
@@ -361,4 +359,5 @@ for i, ax in enumerate(axes.flat):
 &emsp;&emsp;这为我们后续探索更深的网络（ResNet）、更强的正则化（数据增强）以及迁移学习奠定了坚实基础。
 
 ---
+
 
