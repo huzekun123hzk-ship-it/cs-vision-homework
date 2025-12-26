@@ -58,10 +58,12 @@
 
 * **输入层**：接收一个 $N$ 个样本的 mini-batch $X \in \mathbb{R}^{N \times D}$（例如，CIFAR-10 的 $D=3072$ 维原始像素）。
 * **隐藏层**：包含 $H$ 个神经元，通过权重矩阵 $W_1 \in \mathbb{R}^{D \times H}$ 和偏置向量 $b_1 \in \mathbb{R}^H$ 将输入映射到隐藏层：
-  $$
-  A_1 = \text{ReLU}(X W_1 + b_1)
-  $$
-  其中 $A_1 \in \mathbb{R}^{N \times H}$ 是隐藏层的激活值，$\text{ReLU}$ 是激活函数（见 1.4 节）。
+
+$$
+A_1 = \text{ReLU}(X W_1 + b_1)
+$$
+
+其中 $A_1 \in \mathbb{R}^{N \times H}$ 是隐藏层的激活值， $\text{ReLU}$ 是激活函数（见 1.4 节）。
 * **输出层**：包含 $K$ 个神经元（对应 $K$ 个类别），通过权重矩阵 $W_2 \in \mathbb{R}^{H \times K}$ 和偏置向量 $b_2 \in \mathbb{R}^K$ 将隐藏层映射到类别得分：
   $$
   S = A_1 W_2 + b_2
@@ -82,7 +84,7 @@ $$
 
 #### 1.3.1 输入层到隐藏层
 
-&emsp;&emsp;我们首先计算隐藏层的**线性组合**（Linear Combination），也称为**预激活值**（Pre-activation）$Z_1$：
+&emsp;&emsp;我们首先计算隐藏层的**线性组合**（Linear Combination），也称为**预激活值**（Pre-activation）$Z_1$ ：
 
 $$
 Z_1 = X W_1 + b_1
