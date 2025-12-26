@@ -479,10 +479,12 @@ $$
 
 ### 3.3 混淆矩阵与每类准确率分析
 
-\<p align="center"\>\<b\>图 7: 混淆矩阵（计数与归一化）\</b\>\</p\>
-\<p align="center"\>
-  \<img src="./experiments/results/confusion\_matrix.png" alt="测试集混淆矩阵（计数与行归一化准确率）" width="92%"\>
-\</p\>
+<p align="center"><b>图 7: 混淆矩阵（计数与归一化）</b></p>
+<p align="center">
+  <img src="./experiments/results/confusion_matrix.png"
+       alt="测试集混淆矩阵（计数与行归一化准确率）"
+       width="92%">
+</p>
 
 &emsp;&emsp;归一化的混淆矩阵（右图）显示了模型在每个真实类别上的预测分布：
 
