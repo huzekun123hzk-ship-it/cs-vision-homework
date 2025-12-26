@@ -65,10 +65,11 @@ $$
 
 其中 $A_1 \in \mathbb{R}^{N \times H}$ 是隐藏层的激活值， $\text{ReLU}$ 是激活函数（见 1.4 节）。
 * **输出层**：包含 $K$ 个神经元（对应 $K$ 个类别），通过权重矩阵 $W_2 \in \mathbb{R}^{H \times K}$ 和偏置向量 $b_2 \in \mathbb{R}^K$ 将隐藏层映射到类别得分：
-  $$
-  S = A_1 W_2 + b_2
-  $$
-  其中 $S \in \mathbb{R}^{N \times K}$ 是类别得分矩阵。
+
+$$
+S = A_1 W_2 + b_2
+$$
+其中 $S \in \mathbb{R}^{N \times K}$ 是类别得分矩阵。
 
 &emsp;&emsp;将上述过程组合起来，整个网络的前向传播可以写成一个复合函数：
 
