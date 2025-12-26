@@ -123,7 +123,8 @@ $$
 * **序列化策略（Row-by-Row）**：
   - 把每张 CIFAR-10 图像视为长度为 $T=32$ 的序列（逐行扫描）；
   - 每个时间步输入维度为 $D=32\times 3=96$；
-  - 输入张量形状：$X\in\mathbb{R}^{N\times 32\times 96}$。
+  - 输入张量形状：$X \in R^{N \times 32 \times 96}$。
+
 
 * **纯 NumPy 手搓实现三种模型**：
   - **Vanilla RNN**：经典 tanh 循环结构，使用 $W_{hh} = I + 0.01\mathcal{N}(0,1)$ 稳定初始化；
