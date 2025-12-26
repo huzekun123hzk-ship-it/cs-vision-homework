@@ -126,7 +126,6 @@ $$
 - 输入张量形状：$X \in \mathbb{R}^{N \times 32 \times 96}$。
 
 
-
 * **纯 NumPy 手搓实现三种模型**：
   - **Vanilla RNN**：经典 tanh 循环结构，使用 $W_{hh} = I + 0.01\mathcal{N}(0,1)$ 稳定初始化；
   - **LSTM**：四个门控机制（遗忘门、输入门、输出门、候选值）+ cell state；
