@@ -224,9 +224,7 @@ $$
 
 &emsp;&emsp;接下来，计算损失对隐藏层预激活值 $Z_1$ 的梯度 $\mathrm{d}Z_1$。由于 $A_1 = \text{ReLU}(Z_1)$，ReLU 的导数是 $\mathbf{1}_{Z_1 > 0}$（当 $Z_1 > 0$ 时为 1，否则为 0）：
 
-$$
-\mathrm{d}Z_1 = \mathrm{d}A_1 \odot \mathbf{1}_{Z_1 > 0}
-$$
+$\mathrm{d}Z_1 = \mathrm{d}A_1 \odot \mathbf{1}_{Z_1 > 0}$
 &emsp;&emsp;其中 $\odot$ 表示逐元素乘法。
 
 &emsp;&emsp;最后，计算损失对隐藏层参数 $W_1$ 和 $b_1$ 的梯度。由于 $Z_1 = X W_1 + b_1$：
@@ -256,6 +254,7 @@ $$
 $$
 \mathrm{d}W_2^{\text{total}} = \mathrm{d}W_2 + (2 \lambda W_2)
 $$
+
 &emsp;&emsp;（注意：偏置项 $b_1, b_2$ 通常不参与正则化）
 
 <p align="center"><b>图 5：反向传播梯度流动示意图</b></p>
