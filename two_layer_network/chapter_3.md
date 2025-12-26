@@ -88,9 +88,9 @@ $$
 Z_1 = X W_1 + b_1
 $$
 
-&emsp;&emsp;其中 $X \in \mathbb{R}^{N \times D}$, $W_1 \in \mathbb{R}^{D \times H}$, $b_1 \in \mathbb{R}^H$ (通过广播机制加到 $X W_1$ 的每一行)。$Z_1$的形状是 $\mathbb{R}^{N \times H}$。
+&emsp;&emsp;其中 $X \in \mathbb{R}^{N \times D}$, $W_1 \in \mathbb{R}^{D \times H}$, $b_1 \in \mathbb{R}^H$ (通过广播机制加到 $X W_1$ 的每一行)。 $Z_1$ 的形状是 $\mathbb{R}^{N \times H}$。
 
-&emsp;&emsp;然后，我们将 $Z_1$ 通过**激活函数**（见 1.4 节）得到隐藏层的**激活值**（Activation）$A_1$ (在代码中也称为 `a1`)：
+&emsp;&emsp;然后，我们将 $Z_1$ 通过**激活函数**（见 1.4 节）得到隐藏层的**激活值**（Activation） $A_1$ (在代码中也称为 `a1`)：
 
 $$
 A_1 = \text{ReLU}(Z_1) = \max(0, Z_1)
@@ -106,7 +106,7 @@ $$
 S = A_1 W_2 + b_2
 $$
 
-&emsp;&emsp;其中 $A_1 \in \mathbb{R}^{N \times H}$, $W_2 \in \mathbb{R}^{H \times K}$, $b_2 \in \mathbb{R}^K$ (广播)。$S$ (即 `scores`) 的形状是 $\mathbb{R}^{N \times K}$。
+&emsp;&emsp;其中 $A_1 \in \mathbb{R}^{N \times H}$, $W_2 \in \mathbb{R}^{H \times K}$, $b_2 \in \mathbb{R}^K$ (广播)。 $ S $ (即 `scores`) 的形状是 $\mathbb{R}^{N \times K}$。
 
 #### 1.3.3 输出概率分布
 
